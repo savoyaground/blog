@@ -1,0 +1,372 @@
+
+
+
+/* ==========================================
+SHARE BUTTONS
+========================================== */
+
+.share-linkedin,
+.share-instagram,
+.share-native {
+transition:
+background-color 200ms ease,
+border-color 200ms ease,
+color 200ms ease,
+transform 200ms ease,
+box-shadow 200ms ease;
+}
+
+/* ==========================================
+LINKEDIN
+========================================== */
+
+.share-linkedin:hover {
+background-color: #0A66C2;
+border-color: #0A66C2;
+color: #ffffff;
+transform: translateY(-1px);
+box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.share-linkedin:hover .bs-icon,
+.share-linkedin:hover .h6-v2-overline {
+color: #ffffff;
+}
+
+/* ==========================================
+INSTAGRAM
+========================================== */
+
+.share-instagram:hover {
+background-color: rgba(228, 72, 88, 1);
+border-color: rgba(255, 255, 255, 0.20);
+color: #ffffff;
+transform: translateY(-1px);
+box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.share-instagram:hover .bs-icon,
+.share-instagram:hover .h6-v2-overline {
+color: #ffffff;
+}
+
+/* ==========================================
+SHARE
+========================================== */
+
+.share-native:hover {
+background-color: #D98B4D;
+border-color: #D98B4D;
+color: #ffffff;
+transform: translateY(-1px);
+box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.share-native:hover .bs-icon,
+.share-native:hover .h6-v2-overline {
+color: #ffffff;
+}
+
+/* ==========================================
+ACCESSIBILITY
+========================================== */
+
+.share-linkedin:focus-visible,
+.share-instagram:focus-visible,
+.share-native:focus-visible {
+outline: none;
+}
+
+
+/* ==========================================
+   STICKY SIDEBAR
+   ========================================== */
+
+.sidebar,
+.blog-wrapper,
+.blog-content,
+.article-content,
+.article {
+  overflow: visible !important;
+}
+
+.sidebar {
+  position: relative;
+  display: flex;
+  align-self: stretch;
+  overflow: visible !important;
+  width: 100%;
+}
+
+.article-sticky {
+  position: sticky;
+  top: 96px;
+  width: 100%;
+  align-self: flex-start;
+  z-index: 10;
+
+  max-height: calc(100vh - 120px);
+  overflow: hidden;
+}
+
+/* Scrollable TOC */
+.article-list,
+.article-toc {
+  max-height: calc(100vh - 300px);
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  overscroll-behavior: contain;
+
+  padding-right: 1rem;
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #7a7a7a transparent;
+}
+
+/* Chrome / Safari */
+.article-list::-webkit-scrollbar,
+.article-toc::-webkit-scrollbar {
+  width: 4px;
+}
+
+.article-list::-webkit-scrollbar-track,
+.article-toc::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 12px 0;
+}
+
+.article-list::-webkit-scrollbar-thumb,
+.article-toc::-webkit-scrollbar-thumb {
+  background: #7a7a7a;
+  border-radius: 999px;
+}
+
+.article-list::-webkit-scrollbar-thumb:hover,
+.article-toc::-webkit-scrollbar-thumb:hover {
+  background: #9a9a9a;
+}
+
+
+/* ==========================================
+   DESKTOP ARTICLE TOC
+   ========================================== */
+
+.article-toc-link {
+  position: relative;
+  display: block;
+  padding: 0.75rem 0 0.75rem 1.5rem;
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: none;
+  font-weight: 500;
+  line-height: 1.5;
+  transition: color 200ms ease;
+}
+
+.article-toc-link::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.15);
+  transition: background 200ms ease;
+}
+
+.article-toc-link:hover,
+.article-toc-link:focus-visible {
+  color: rgba(255, 255, 255, 0.85);
+  outline: none;
+}
+
+.article-toc-link:hover::before {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.article-toc-link.is-active {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  font-weight: inherit;
+}
+
+.article-toc-link.is-active::before {
+  background: #d98b4d !important;
+}
+
+/* ==========================================
+   DESKTOP ARTICLE TOC SUBLINKS
+   ========================================== */
+
+.article-toc-sublink {
+  position: relative;
+  display: block;
+  padding: 0.5rem 0 0.5rem 2.5rem;
+  color: rgba(255, 255, 255, 0.45);
+  text-decoration: none;
+  font-weight: 400;
+  line-height: 1.45;
+  transition: color 200ms ease;
+}
+
+.article-toc-sublink::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.15);
+  transition: background 200ms ease;
+}
+
+.article-toc-sublink:hover,
+.article-toc-sublink:focus-visible {
+  color: rgba(255, 255, 255, 0.75);
+  outline: none;
+}
+
+.article-toc-sublink:hover::before {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.article-toc-sublink.is-active {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  font-weight: 500;
+}
+
+.article-toc-sublink.is-active::before {
+  background: #d98b4d !important;
+}
+
+
+/* ==========================================
+   MOBILE ARTICLE TOC
+   ========================================== */
+
+.mobile-article-toc {
+  display: none;
+}
+
+@media (max-width: 767px) {
+
+  .mobile-article-toc {
+    display: block;
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 999;
+    padding: 1rem;
+    background: rgba(17, 17, 17, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 1rem;
+    backdrop-filter: blur(12px);
+  }
+
+  .mobile-article-list {
+    display: flex;
+    gap: 0.50rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 1rem 0.25rem;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-article-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobile-article-toc-link {
+    flex: 0 0 auto;
+    padding: 0.65rem 0.9rem;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    font-size: 0.875rem;
+    line-height: 1.2;
+    font-weight: 500;
+    white-space: nowrap;
+    scroll-snap-align: center;
+    transition: color 200ms ease, background 200ms ease;
+  }
+
+  .mobile-article-toc-link:hover,
+  .mobile-article-toc-link:focus-visible {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.14);
+    outline: none;
+  }
+
+  .mobile-article-toc-link.is-active {
+    color: #ffffff !important;
+    background: #d98b4d !important;
+    opacity: 1 !important;
+  }
+}
+
+/* ==========================================
+   TOC READ PROGRESS
+   ========================================== */
+
+
+.toc-progress {
+  /* margin: 1.5rem 0 2rem; */
+}
+
+.toc-progress-track {
+  /* width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  overflow: hidden; */
+}
+
+.toc-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: #d98b4d;
+  border-radius: 999px;
+  transition: width 120ms linear;
+ }
+
+.toc-progress-percentage {
+  /* margin-top: 0.5rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.875rem;
+  line-height: 1.2;
+  text-align: center; */
+}
+
+/* ==========================================
+   FADE IN SECTIONS
+   ========================================== */
+
+.fade-section {
+  opacity: 0;
+  transform: translateY(32px);
+  transition:
+    opacity 800ms ease,
+    transform 800ms ease;
+  will-change: opacity, transform;
+}
+
+.fade-section.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Accessibility */
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-section {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
