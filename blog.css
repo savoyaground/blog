@@ -370,3 +370,76 @@ outline: none;
     transition: none;
   }
 }
+
+!-- ========================================
+     BLOG TEMPLATE STYLE OVERRIDES
+     ======================================== -->
+
+  /* ========================================
+     HEADING AND BUTTON LINK UNDERLINES
+     ======================================== */
+
+  /* Remove underlines and borders from H3 and H4 links */
+  .blog-body-copy :is(h3, h4),
+  .blog-body-copy :is(h3, h4) a {
+    text-decoration: none !important;
+    border: none !important;
+  }
+
+  /* Remove underlines from primary button text */
+  .blog-body-copy .primary-btn-txt,
+  .blog-body-copy .primary-btn-txt a,
+  .primary-btn-txt,
+  .primary-btn-txt:hover,
+  .primary-btn-txt:focus,
+  .primary-btn-txt:visited,
+  .primary-btn-txt * {
+    text-decoration: none !important;
+    border: none !important;
+  }
+
+
+  /* ========================================
+     HUBSPOT FORM SPACING
+     ======================================== */
+
+  /* Remove the default padding from HubSpot form steps */
+  .hsfc-Step .hsfc-Step__Content {
+    padding: 0 !important;
+  }
+
+
+  /* ========================================
+     RELATED BLOG CARD VISIBILITY
+     Controls how many blog cards appear
+     at each responsive breakpoint
+     ======================================== */
+
+  /* Mobile: display the first three blog cards */
+  @media screen and (max-width: 479px) {
+    .blog-list > :nth-child(n + 4) {
+      display: none;
+    }
+  }
+
+  /* Tablet: display the first four blog cards */
+  @media screen and (min-width: 480px) and (max-width: 991px) {
+    .blog-list > :nth-child(n + 5) {
+      display: none;
+    }
+  }
+
+  /* Desktop: display the first three blog cards */
+  @media screen and (min-width: 992px) and (max-width: 1439px) {
+    .blog-list > :nth-child(n + 4) {
+      display: none;
+    }
+  }
+
+  /* Large desktop: display the first four blog cards */
+  @media screen and (min-width: 1440px) {
+    .blog-list > :nth-child(n + 5) {
+      display: none;
+    }
+  }
+
