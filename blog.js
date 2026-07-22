@@ -129,7 +129,7 @@ function initTOC() {
       headingLineHeight = headingFontSize * 1.2;
     }
 
-    const titleSpacing = headingLineHeight * 2;
+    const titleSpacing = headingLineHeight * 3;
 
     return navOffset + titleSpacing;
   }
