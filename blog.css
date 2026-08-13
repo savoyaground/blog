@@ -443,7 +443,11 @@ outline: none;
     }
   }
 
-.blog-list {
+  /* ========================================
+     BLOG BODY BULLETS
+     ======================================== */
+
+.blog-accent-list {
   border-left: 1px solid #B66A2C;
   display: flex;
   flex-direction: column;
@@ -452,7 +456,7 @@ outline: none;
   padding-left: 28px;
 }
 
-.blog-list_item {
+.blog-accent-list_item {
   display: grid;
   grid-template-columns: 42px 1fr;
   align-items: start;
@@ -461,7 +465,7 @@ outline: none;
   line-height: 1.55;
 }
 
-.blog-list_number {
+.blog-accent-list_number {
   color: #B66A2C;
   font-size: 13px;
   font-weight: 600;
