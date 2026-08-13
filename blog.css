@@ -461,7 +461,7 @@ outline: none;
   grid-template-columns: 42px 1fr;
   align-items: start;
   column-gap: 12px;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1.55;
 }
 
