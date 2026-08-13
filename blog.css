@@ -443,3 +443,29 @@ outline: none;
     }
   }
 
+.blog-list {
+  border-left: 1px solid #B66A2C;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin: 28px 0 36px;
+  padding-left: 28px;
+}
+
+.blog-list_item {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  align-items: start;
+  column-gap: 12px;
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+.blog-list_number {
+  color: #B66A2C;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding-top: 5px;
+}
+
