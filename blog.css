@@ -371,9 +371,9 @@ outline: none;
   }
 }
 
-!-- ========================================
+/* ========================================
      BLOG TEMPLATE STYLE OVERRIDES
-     ======================================== -->
+     ======================================== */
 
   /* ========================================
      HEADING AND BUTTON LINK UNDERLINES
@@ -472,4 +472,39 @@ outline: none;
   letter-spacing: 0.04em;
   padding-top: 5px;
 }
+
+/* ==========================================
+   BLOG TEMPLATE MOBILE FIXES
+   Paste this after the existing blog CSS so these rules win the cascade.
+   ========================================== */
+
+@media screen and (max-width: 767px) {
+  /* Prevent the Webflow grid track from expanding to the article's
+     intrinsic content width. */
+  .v2-section-container.blog {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Allow every article layer to shrink inside the mobile grid. */
+  .v2-section-container.blog > *,
+  .v2-section-container.blog .blog-show-page,
+  .v2-section-container.blog .blog-header,
+  .v2-section-container.blog .blog-heading,
+  .v2-section-container.blog .blog-section,
+  .v2-section-container.blog .blog-body-copy {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* The outer wrapper has both classes but never receives .fade-in.
+     Restore it on mobile while individual child sections may still animate. */
+  .v2-section-container.blog > .blog-body-copy.fade-section {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
 
