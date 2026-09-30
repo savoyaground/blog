@@ -110,7 +110,6 @@ outline: none;
 }
 
 /* Scrollable TOC */
-.article-list,
 .article-toc {
   max-height: calc(100vh - 300px);
 
@@ -127,24 +126,20 @@ outline: none;
 }
 
 /* Chrome / Safari */
-.article-list::-webkit-scrollbar,
 .article-toc::-webkit-scrollbar {
   width: 4px;
 }
 
-.article-list::-webkit-scrollbar-track,
 .article-toc::-webkit-scrollbar-track {
   background: transparent;
   margin: 12px 0;
 }
 
-.article-list::-webkit-scrollbar-thumb,
 .article-toc::-webkit-scrollbar-thumb {
   background: #7a7a7a;
   border-radius: 999px;
 }
 
-.article-list::-webkit-scrollbar-thumb:hover,
 .article-toc::-webkit-scrollbar-thumb:hover {
   background: #9a9a9a;
 }
