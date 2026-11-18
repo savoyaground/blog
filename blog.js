@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
   initTocProgress();
   initShare();
   initFadeSections();
+  initPrevNext();
 });
 
 window.addEventListener('load', function () {
@@ -442,4 +443,372 @@ function initFadeSections() {
   fadeSections.forEach(function (section) {
     observer.observe(section);
   });
+}
+
+/* ==================================================
+   PREVIOUS / NEXT ARTICLE
+   Order follows the /blog listing (newest first):
+   "Previous" = the post above this one in the list (newer),
+   "Next" = the post below it (older).
+   1440px+: edge arrows with a hover preview.
+   1439px and below: "Keep reading" cards; 991px and below also
+   gets a sticky pager once the article body has been read.
+================================================== */
+
+var PN_LIST_URL = '/blog';
+var PN_PAGE_PARAM = '3f15550f_page';
+var PN_CACHE_KEY = 'svy-blog-index-v1';
+var PN_CACHE_TTL = 60 * 60 * 1000; /* 1 hour */
+var PN_MAX_PAGES = 40;
+
+function initPrevNext() {
+  var match = window.location.pathname.match(/\/blog\/([^\/?#]+)/);
+  if (!match) return;
+
+  var slug = decodeURIComponent(match[1]).toLowerCase();
+
+  pnFindNeighbors(slug)
+    .then(function (result) {
+      if (!result || (!result.prev && !result.next)) return;
+      pnRenderEdge(result.prev, result.next);
+      pnRenderKeepReading(result.prev, result.next);
+      pnRenderPager(result.prev, result.next);
+      pnWatchScroll();
+    })
+    .catch(function () {
+      /* Navigation is an enhancement; fail silently. */
+    });
+}
+
+/* ---------- data ---------- */
+
+function pnLoadCache() {
+  try {
+    var raw = window.localStorage.getItem(PN_CACHE_KEY);
+    if (!raw) return null;
+    var data = JSON.parse(raw);
+    if (!data || Date.now() - data.t > PN_CACHE_TTL) return null;
+    return data;
+  } catch (e) {
+    return null;
+  }
+}
+
+function pnSaveCache(cache) {
+  try {
+    window.localStorage.setItem(PN_CACHE_KEY, JSON.stringify(cache));
+  } catch (e) {
+    /* Storage unavailable or full. */
+  }
+}
+
+function pnParseListing(html) {
+  var doc = new DOMParser().parseFromString(html, 'text/html');
+  var wrapper = doc.querySelector('.blog-wrapper') || doc;
+  var items = [];
+
+  wrapper.querySelectorAll('.blog-item').forEach(function (item) {
+    var link = item.querySelector('a[href*="/blog/"]');
+    if (!link) return;
+
+    var href = link.getAttribute('href');
+    var slugMatch = href.match(/\/blog\/([^\/?#]+)/);
+    if (!slugMatch) return;
+
+    var titleEl = item.querySelector('h4, h3, h2, [fs-cmsfilter-field="title"]');
+    var thumbEl = item.querySelector('.blog-thumbnail:not(.w-condition-invisible)');
+    var thumb = '';
+
+    if (thumbEl) {
+      var bg = (thumbEl.getAttribute('style') || '').match(/url\((['"]?)(.*?)\1\)/);
+      if (bg) thumb = bg[2].replace(/&quot;/g, '');
+    }
+
+    items.push({
+      slug: decodeURIComponent(slugMatch[1]).toLowerCase(),
+      href: '/blog/' + slugMatch[1],
+      title: titleEl ? titleEl.textContent.replace(/\s+/g, ' ').trim() : '',
+      thumb: thumb,
+    });
+  });
+
+  return {
+    items: items,
+    hasNext: !!doc.querySelector('.blog-wrapper .w-pagination-next, .w-pagination-next'),
+  };
+}
+
+function pnFetchPage(cache, page) {
+  if (cache.pages[page]) return Promise.resolve(cache.pages[page]);
+
+  var url = PN_LIST_URL + '?' + PN_PAGE_PARAM + '=' + page;
+
+  return fetch(url, { credentials: 'same-origin' })
+    .then(function (response) {
+      if (!response.ok) throw new Error('Listing ' + response.status);
+      return response.text();
+    })
+    .then(function (html) {
+      var parsed = pnParseListing(html);
+      cache.pages[page] = parsed;
+      return parsed;
+    });
+}
+
+function pnFindNeighbors(slug) {
+  var cached = pnLoadCache();
+
+  return pnSearch(slug, cached || { t: Date.now(), pages: {} }).then(function (result) {
+    /* A stale cache can miss newly published posts: retry fresh once. */
+    if (!result && cached) {
+      return pnSearch(slug, { t: Date.now(), pages: {} });
+    }
+    return result;
+  });
+}
+
+function pnSearch(slug, cache) {
+  var page = 1;
+
+  function step() {
+    if (page > PN_MAX_PAGES) return null;
+
+    /* Fetch up to three pages at a time to keep first visits quick. */
+    var batch = [page, page + 1, page + 2];
+
+    return Promise.all(
+      batch.map(function (p) {
+        return pnFetchPage(cache, p).catch(function () {
+          return { items: [], hasNext: false };
+        });
+      })
+    ).then(function () {
+      for (var i = 0; i < batch.length; i++) {
+        var p = batch[i];
+        var current = cache.pages[p];
+        if (!current || !current.items.length) break;
+
+        var index = -1;
+        current.items.forEach(function (item, j) {
+          if (item.slug === slug) index = j;
+        });
+
+        if (index > -1) {
+          var prev = null;
+          var next = null;
+
+          if (index > 0) {
+            prev = current.items[index - 1];
+          } else if (p > 1 && cache.pages[p - 1]) {
+            var before = cache.pages[p - 1].items;
+            prev = before[before.length - 1] || null;
+          }
+
+          if (index < current.items.length - 1) {
+            next = current.items[index + 1];
+            pnSaveCache(cache);
+            return { prev: prev, next: next };
+          }
+
+          if (!current.hasNext) {
+            pnSaveCache(cache);
+            return { prev: prev, next: null };
+          }
+
+          return pnFetchPage(cache, p + 1)
+            .then(function (after) {
+              pnSaveCache(cache);
+              return { prev: prev, next: after.items[0] || null };
+            })
+            .catch(function () {
+              return { prev: prev, next: null };
+            });
+        }
+
+        if (!current.hasNext) {
+          pnSaveCache(cache);
+          return null;
+        }
+      }
+
+      page += batch.length;
+      return step();
+    });
+  }
+
+  return Promise.resolve().then(step);
+}
+
+/* ---------- markup helpers ---------- */
+
+function pnEl(tag, className, text) {
+  var node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text) node.textContent = text;
+  return node;
+}
+
+function pnThumb(className, post) {
+  var thumb = pnEl('span', className);
+  thumb.setAttribute('aria-hidden', 'true');
+  if (post.thumb) {
+    thumb.style.backgroundImage = 'url("' + post.thumb.replace(/"/g, '%22') + '")';
+  }
+  return thumb;
+}
+
+function pnText(overline, post) {
+  var text = pnEl('span', 'pn-text');
+  text.appendChild(pnEl('span', 'pn-overline', overline));
+  text.appendChild(pnEl('span', 'pn-title', post.title));
+  return text;
+}
+
+function pnChevron(direction) {
+  var path = direction === 'prev' ? 'M15 5l-7 7 7 7' : 'M9 5l7 7-7 7';
+  var span = pnEl('span', 'pn-chevron');
+  span.setAttribute('aria-hidden', 'true');
+  span.innerHTML =
+    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+    'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="' + path + '"/></svg>';
+  return span;
+}
+
+/* ---------- A: desktop edge arrows ---------- */
+
+function pnRenderEdge(prev, next) {
+  var nav = pnEl('nav', 'pn-edge');
+  nav.setAttribute('aria-label', 'Previous and next articles');
+
+  [['prev', prev, 'Previous article'], ['next', next, 'Next article']].forEach(function (cfg) {
+    var post = cfg[1];
+    if (!post) return;
+
+    var link = pnEl('a', 'pn-edge-link pn-edge-' + cfg[0]);
+    link.href = post.href;
+    link.setAttribute('aria-label', cfg[2] + ': ' + post.title);
+
+    var button = pnEl('span', 'pn-edge-btn');
+    button.appendChild(pnChevron(cfg[0]));
+
+    var preview = pnEl('span', 'pn-edge-preview');
+    preview.setAttribute('aria-hidden', 'true');
+    preview.appendChild(pnThumb('pn-edge-thumb', post));
+    preview.appendChild(pnText(cfg[2], post));
+
+    link.appendChild(button);
+    link.appendChild(preview);
+    nav.appendChild(link);
+  });
+
+  document.body.appendChild(nav);
+}
+
+/* ---------- D: mobile "Keep reading" cards ---------- */
+
+function pnRenderKeepReading(prev, next) {
+  var anchor = document.querySelector('.section-container.pt-24');
+
+  var wrap = pnEl('div', 'section-container pn-keep-wrap');
+  var section = pnEl('section', 'pn-keep');
+  section.setAttribute('aria-label', 'Keep reading');
+  section.appendChild(pnEl('div', 'pn-keep-label', 'Keep reading'));
+
+  [['prev', prev, 'Previous article'], ['next', next, 'Next article']].forEach(function (cfg) {
+    var post = cfg[1];
+    if (!post) return;
+
+    var card = pnEl('a', 'pn-card');
+    card.href = post.href;
+    card.appendChild(pnThumb('pn-card-thumb', post));
+    card.appendChild(pnText(cfg[2], post));
+    card.appendChild(pnChevron('next'));
+    section.appendChild(card);
+  });
+
+  wrap.appendChild(section);
+
+  if (anchor && anchor.parentNode) {
+    anchor.parentNode.insertBefore(wrap, anchor);
+  } else {
+    var footer = document.querySelector('.footer');
+    if (footer && footer.parentNode) footer.parentNode.insertBefore(wrap, footer);
+    else document.body.appendChild(wrap);
+  }
+}
+
+/* ---------- D: mobile sticky pager ---------- */
+
+function pnRenderPager(prev, next) {
+  var pager = pnEl('nav', 'pn-pager');
+  pager.setAttribute('aria-label', 'Previous and next articles');
+
+  [['prev', prev, 'Previous'], ['next', next, 'Next']].forEach(function (cfg, i) {
+    var post = cfg[1];
+    var item = post ? pnEl('a', 'pn-pager-link') : pnEl('span', 'pn-pager-link is-disabled');
+
+    if (post) {
+      item.href = post.href;
+      item.setAttribute('aria-label', cfg[2] + ' article: ' + post.title);
+    } else {
+      item.setAttribute('aria-disabled', 'true');
+    }
+
+    var label = pnEl('span', 'pn-pager-label', cfg[2]);
+    if (cfg[0] === 'prev') {
+      item.appendChild(pnChevron('prev'));
+      item.appendChild(label);
+    } else {
+      item.appendChild(label);
+      item.appendChild(pnChevron('next'));
+    }
+
+    if (i === 1) pager.appendChild(pnEl('span', 'pn-pager-divider'));
+    pager.appendChild(item);
+  });
+
+  document.body.appendChild(pager);
+}
+
+/* ---------- visibility ---------- */
+
+function pnWatchScroll() {
+  var body = document.querySelector('.blog-section .blog-body-copy') ||
+    document.querySelector('.blog-body-copy');
+  var keep = document.querySelector('.pn-keep');
+  var footer = document.querySelector('.footer');
+  var ticking = false;
+
+  function update() {
+    ticking = false;
+    var vh = window.innerHeight;
+
+    var footerInView = footer ? footer.getBoundingClientRect().top < vh : false;
+    var keepInView = false;
+
+    if (keep) {
+      var k = keep.getBoundingClientRect();
+      keepInView = k.top < vh && k.bottom > 0;
+    }
+
+    var finished = body ? body.getBoundingClientRect().bottom < vh * 0.9 : false;
+
+    document.documentElement.classList.toggle('pn-edge-hidden', footerInView);
+    document.documentElement.classList.toggle('pn-done', finished);
+    document.documentElement.classList.toggle(
+      'pn-pager-on',
+      finished && !keepInView && !footerInView
+    );
+  }
+
+  function onScroll() {
+    if (!ticking) {
+      ticking = true;
+      window.requestAnimationFrame(update);
+    }
+  }
+
+  update();
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
 }
